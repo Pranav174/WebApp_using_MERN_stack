@@ -26,6 +26,9 @@ const UserSchema = new Schema({
     rating: {
         type: Number,
         default: -1
+    },
+    ratings: {
+        type: [Number],
     }
 });
 

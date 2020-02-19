@@ -4,9 +4,11 @@ const bcrypt = require("bcryptjs");
 const config = require('config');
 const jwt = require('jsonwebtoken');
 const auth = require('../middleware/authorize')
+const Order = require("../models/Order");
 
 const validateRegisterInput = require("../validation/register");
 const validateLoginInput = require("../validation/login");
+// const validateUserType = require("../validation/user_type");
 
 const User = require("../models/User");
 
@@ -35,8 +37,8 @@ router.post("/register", (req, res) => {
                     newUser
                         .save()
                         .then(user => res.json(user))
-                        .catch(err => res.status(400).json({err: err}));
-                        // .catch(err => console.log(err));
+                        .catch(err => res.status(400).json({ err: err }));
+                    // .catch(err => console.log(err));
                 });
             });
         }
@@ -59,18 +61,14 @@ router.post("/login", (req, res) => {
         bcrypt.compare(password, user.password).then(isMatch => {
             if (isMatch) {
                 jwt.sign(
-                    { id: user.id },
+                    { id: user.id, vendor: user.vendor },
                     config.get('jwtSecret'),
                     { expiresIn: 3600 },
                     (err, token) => {
                         if (err) throw err;
                         res.json({
                             token,
-                            user: {
-                                id: user.id,
-                                name: user.name,
-                                email: user.email
-                            }
+                            user
                         });
                     }
                 )
@@ -87,5 +85,18 @@ router.get("/is_authenticated", auth, (req, res) => {
     res.status(200).json(req.user)
 })
 
+router.get("/vendor/:id", auth, (req, res) => {
+    if (req.user.vendor) res.status(400).json({ msg: "Only customers" })
+    else {
+        User.findById(req.params.id, (err, user) => {
+            if (err) res.status(400).json({ err: err })
+            else if (!user.vendor) res.status(400).json({ err: "queried user is not a vendor" })
+            Order.find({ vendor_id: user.id, reviewed: true }).populate("customer_id item_id").exec((err, orders) => {
+                if (err) res.status(400).json({ err: err })
+                res.status(200).json({vendor: user, reviews: orders})
+            })
+        })
+    }
+})
 
 module.exports = router;

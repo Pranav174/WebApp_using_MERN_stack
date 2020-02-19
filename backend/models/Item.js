@@ -4,7 +4,7 @@ const Schema = mongoose.Schema;
 const ItemSchema = new Schema({
     vendor_id: {
         type: Schema.Types.ObjectId,
-        ref: 'User'
+        ref: 'users'
     },
     name: {
         type: String,
@@ -22,6 +22,10 @@ const ItemSchema = new Schema({
         type: Number,
         required: true
     },
+    date: {
+        type: Date,
+        default: Date.now
+    },
     canceled: {
         type: Boolean,
         default: false
@@ -34,10 +38,11 @@ const ItemSchema = new Schema({
         type: Boolean,
         default: false
     },
-    rating: {
+    seller_rating: {
         type: Number,
         default: -1
     }
+
 });
 
 module.exports = Item = mongoose.model("items", ItemSchema);
