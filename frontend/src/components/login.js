@@ -25,8 +25,8 @@ export default class Login extends Component {
                 sessionStorage.setItem('token', res.data.token)
                 sessionStorage.setItem('is_vendor', res.data.user.vendor)
                 console.log(res)
-                
                 this.props.history.push('/');
+                window.location.reload()
             })
             .catch(err => {
                 console.log(err.response);
