@@ -7,8 +7,10 @@ const User = require("../models/User");
 const Order = require("../models/Order");
 
 router.post("/create", auth, (req, res) => {
-    if (!req.user.vendor) res.status(400).json({ msg: "Only vendors" })
+    if (!req.user.vendor) res.status(400).json({ err: "Only vendors" })
+    else if (req.body.price < 1 || req.body.quantity < 1) res.status(400).json({ err: "Need positive price and quantity" })
     else {
+
         const newItem = new Item({
             vendor_id: req.user.id,
             name: req.body.name,
@@ -24,7 +26,7 @@ router.post("/create", auth, (req, res) => {
 });
 
 router.get("/", auth, (req, res) => {
-    if (!req.user.vendor) res.status(400).json({ msg: "Only vendors" })
+    if (!req.user.vendor) res.status(400).json({ err: "Only vendors" })
     else {
         Item.find({ vendor_id: req.user.id, ready: false, canceled: false, dispatched: false }, (err, docs) => {
             if (err) res.status(400).json({ err: err });
@@ -34,7 +36,7 @@ router.get("/", auth, (req, res) => {
 });
 
 router.get("/ready_to_dispatch", auth, (req, res) => {
-    if (!req.user.vendor) res.status(400).json({ msg: "Only vendors" })
+    if (!req.user.vendor) res.status(400).json({ err: "Only vendors" })
     else {
         Item.find({ vendor_id: req.user.id, ready: true, canceled: false, dispatched: false }, (err, docs) => {
             if (err) res.status(400).json({ err: err });
@@ -44,7 +46,7 @@ router.get("/ready_to_dispatch", auth, (req, res) => {
 });
 
 router.post("/cancel/:id", auth, (req, res) => {
-    if (!req.user.vendor) res.status(400).json({ msg: "Only vendors" })
+    if (!req.user.vendor) res.status(400).json({ err: "Only vendors" })
     else {
         Item.findById(req.params.id, (err, item) => {
             if (err) res.status(400).json({ err: err })
