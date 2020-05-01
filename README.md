@@ -1,4 +1,7 @@
 # Web App using MERN Stack
+
+Simple full-stack webApp with two users vendor and customers
+
 ## How to run
 
 Run Mongo daemon:
